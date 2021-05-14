@@ -1,5 +1,5 @@
 {
-  "name": "ws",
+  "name": "postman-ws",
   "version": "7.5.13",
   "description": "Simple to use, blazing fast and thoroughly tested websocket client and server for Node.js",
   "keywords": [
@@ -10,10 +10,9 @@
     "WebSockets",
     "real-time"
   ],
-  "homepage": "https://github.com/websockets/ws",
-  "bugs": "https://github.com/websockets/ws/issues",
-  "repository": "websockets/ws",
-  "author": "Einar Otto Stangvik <einaros@gmail.com> (http://2x.io)",
+  "homepage": "https://github.com/postmanlabs/postman-ws",
+  "bugs": "https://github.com/postmanlabs/postman-ws/issues",
+  "repository": "postmanlabs/postman-ws",
   "license": "MIT",
   "main": "index.js",
   "browser": "browser.js",
