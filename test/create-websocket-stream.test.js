@@ -203,25 +203,37 @@ describe('createWebSocketStream', () => {
     });
 
     it('reemits errors', (done) => {
+      let duplexCloseEventEmitted = false;
+      let serverClientCloseEventEmitted = false;
+
       const wss = new WebSocket.Server({ port: 0 }, () => {
         const ws = new WebSocket(`ws://localhost:${wss.address().port}`);
         const duplex = createWebSocketStream(ws);
 
         duplex.on('error', (err) => {
           assert.ok(err instanceof RangeError);
+          assert.strictEqual(err.code, 'WS_ERR_INVALID_OPCODE');
           assert.strictEqual(
             err.message,
             'Invalid WebSocket frame: invalid opcode 5'
           );
 
           duplex.on('close', () => {
-            wss.close(done);
+            duplexCloseEventEmitted = true;
+            if (serverClientCloseEventEmitted) wss.close(done);
           });
         });
       });
 
       wss.on('connection', (ws) => {
         ws._socket.write(Buffer.from([0x85, 0x00]));
+        ws.on('close', (code, reason) => {
+          assert.strictEqual(code, 1002);
+          assert.strictEqual(reason, '');
+
+          serverClientCloseEventEmitted = true;
+          if (duplexCloseEventEmitted) wss.close(done);
+        });
       });
     });
 
@@ -524,6 +536,32 @@ describe('createWebSocketStream', () => {
         ws.on('open', () => {
           duplex.destroy();
         });
+      });
+    });
+
+    it('resumes the socket if `readyState` is `CLOSING`', (done) => {
+      const wss = new WebSocket.Server({ port: 0 }, () => {
+        const ws = new WebSocket(`ws://localhost:${wss.address().port}`);
+        const duplex = createWebSocketStream(ws);
+
+        ws.on('message', () => {
+          assert.ok(ws._socket.isPaused());
+
+          duplex.on('close', () => {
+            wss.close(done);
+          });
+
+          duplex.end();
+
+          process.nextTick(() => {
+            assert.strictEqual(ws.readyState, WebSocket.CLOSING);
+            duplex.resume();
+          });
+        });
+      });
+
+      wss.on('connection', (ws) => {
+        ws.send(randomBytes(16 * 1024));
       });
     });
   });

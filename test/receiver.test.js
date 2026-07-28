@@ -513,6 +513,7 @@ describe('Receiver', () => {
 
     receiver.on('error', (err) => {
       assert.ok(err instanceof RangeError);
+      assert.strictEqual(err.code, 'WS_ERR_UNEXPECTED_RSV_1');
       assert.strictEqual(
         err.message,
         'Invalid WebSocket frame: RSV1 must be clear'
@@ -534,6 +535,7 @@ describe('Receiver', () => {
 
     receiver.on('error', (err) => {
       assert.ok(err instanceof RangeError);
+      assert.strictEqual(err.code, 'WS_ERR_UNEXPECTED_RSV_1');
       assert.strictEqual(
         err.message,
         'Invalid WebSocket frame: RSV1 must be clear'
@@ -550,6 +552,7 @@ describe('Receiver', () => {
 
     receiver.on('error', (err) => {
       assert.ok(err instanceof RangeError);
+      assert.strictEqual(err.code, 'WS_ERR_UNEXPECTED_RSV_2_3');
       assert.strictEqual(
         err.message,
         'Invalid WebSocket frame: RSV2 and RSV3 must be clear'
@@ -566,6 +569,7 @@ describe('Receiver', () => {
 
     receiver.on('error', (err) => {
       assert.ok(err instanceof RangeError);
+      assert.strictEqual(err.code, 'WS_ERR_UNEXPECTED_RSV_2_3');
       assert.strictEqual(
         err.message,
         'Invalid WebSocket frame: RSV2 and RSV3 must be clear'
@@ -582,6 +586,7 @@ describe('Receiver', () => {
 
     receiver.on('error', (err) => {
       assert.ok(err instanceof RangeError);
+      assert.strictEqual(err.code, 'WS_ERR_INVALID_OPCODE');
       assert.strictEqual(
         err.message,
         'Invalid WebSocket frame: invalid opcode 0'
@@ -598,6 +603,7 @@ describe('Receiver', () => {
 
     receiver.on('error', (err) => {
       assert.ok(err instanceof RangeError);
+      assert.strictEqual(err.code, 'WS_ERR_INVALID_OPCODE');
       assert.strictEqual(
         err.message,
         'Invalid WebSocket frame: invalid opcode 1'
@@ -615,6 +621,7 @@ describe('Receiver', () => {
 
     receiver.on('error', (err) => {
       assert.ok(err instanceof RangeError);
+      assert.strictEqual(err.code, 'WS_ERR_INVALID_OPCODE');
       assert.strictEqual(
         err.message,
         'Invalid WebSocket frame: invalid opcode 2'
@@ -632,6 +639,7 @@ describe('Receiver', () => {
 
     receiver.on('error', (err) => {
       assert.ok(err instanceof RangeError);
+      assert.strictEqual(err.code, 'WS_ERR_EXPECTED_FIN');
       assert.strictEqual(
         err.message,
         'Invalid WebSocket frame: FIN must be set'
@@ -653,6 +661,7 @@ describe('Receiver', () => {
 
     receiver.on('error', (err) => {
       assert.ok(err instanceof RangeError);
+      assert.strictEqual(err.code, 'WS_ERR_UNEXPECTED_RSV_1');
       assert.strictEqual(
         err.message,
         'Invalid WebSocket frame: RSV1 must be clear'
@@ -669,6 +678,7 @@ describe('Receiver', () => {
 
     receiver.on('error', (err) => {
       assert.ok(err instanceof RangeError);
+      assert.strictEqual(err.code, 'WS_ERR_EXPECTED_FIN');
       assert.strictEqual(
         err.message,
         'Invalid WebSocket frame: FIN must be set'
@@ -685,6 +695,7 @@ describe('Receiver', () => {
 
     receiver.on('error', (err) => {
       assert.ok(err instanceof RangeError);
+      assert.strictEqual(err.code, 'WS_ERR_EXPECTED_MASK');
       assert.strictEqual(
         err.message,
         'Invalid WebSocket frame: MASK must be set'
@@ -701,6 +712,7 @@ describe('Receiver', () => {
 
     receiver.on('error', (err) => {
       assert.ok(err instanceof RangeError);
+      assert.strictEqual(err.code, 'WS_ERR_UNEXPECTED_MASK');
       assert.strictEqual(
         err.message,
         'Invalid WebSocket frame: MASK must be clear'
@@ -719,6 +731,7 @@ describe('Receiver', () => {
 
     receiver.on('error', (err) => {
       assert.ok(err instanceof RangeError);
+      assert.strictEqual(err.code, 'WS_ERR_INVALID_CONTROL_PAYLOAD_LENGTH');
       assert.strictEqual(
         err.message,
         'Invalid WebSocket frame: invalid payload length 126'
@@ -735,6 +748,7 @@ describe('Receiver', () => {
 
     receiver.on('error', (err) => {
       assert.ok(err instanceof RangeError);
+      assert.strictEqual(err.code, 'WS_ERR_UNSUPPORTED_DATA_PAYLOAD_LENGTH');
       assert.strictEqual(
         err.message,
         'Unsupported WebSocket frame: payload length > 2^53 - 1'
@@ -756,6 +770,7 @@ describe('Receiver', () => {
 
     receiver.on('error', (err) => {
       assert.ok(err instanceof Error);
+      assert.strictEqual(err.code, 'WS_ERR_INVALID_UTF8');
       assert.strictEqual(
         err.message,
         'Invalid WebSocket frame: invalid UTF-8 sequence'
@@ -778,6 +793,7 @@ describe('Receiver', () => {
 
     receiver.on('error', (err) => {
       assert.ok(err instanceof Error);
+      assert.strictEqual(err.code, 'WS_ERR_INVALID_UTF8');
       assert.strictEqual(
         err.message,
         'Invalid WebSocket frame: invalid UTF-8 sequence'
@@ -799,6 +815,7 @@ describe('Receiver', () => {
 
     receiver.on('error', (err) => {
       assert.ok(err instanceof RangeError);
+      assert.strictEqual(err.code, 'WS_ERR_INVALID_CONTROL_PAYLOAD_LENGTH');
       assert.strictEqual(
         err.message,
         'Invalid WebSocket frame: invalid payload length 1'
@@ -815,6 +832,7 @@ describe('Receiver', () => {
 
     receiver.on('error', (err) => {
       assert.ok(err instanceof RangeError);
+      assert.strictEqual(err.code, 'WS_ERR_INVALID_CLOSE_CODE');
       assert.strictEqual(
         err.message,
         'Invalid WebSocket frame: invalid status code 0'
@@ -831,6 +849,7 @@ describe('Receiver', () => {
 
     receiver.on('error', (err) => {
       assert.ok(err instanceof Error);
+      assert.strictEqual(err.code, 'WS_ERR_INVALID_UTF8');
       assert.strictEqual(
         err.message,
         'Invalid WebSocket frame: invalid UTF-8 sequence'
@@ -860,6 +879,7 @@ describe('Receiver', () => {
 
     receiver.on('error', (err) => {
       assert.ok(err instanceof RangeError);
+      assert.strictEqual(err.code, 'WS_ERR_UNSUPPORTED_MESSAGE_LENGTH');
       assert.strictEqual(err.message, 'Max payload size exceeded');
       assert.strictEqual(err[kStatusCode], 1009);
       done();
@@ -884,6 +904,7 @@ describe('Receiver', () => {
 
     receiver.on('error', (err) => {
       assert.ok(err instanceof RangeError);
+      assert.strictEqual(err.code, 'WS_ERR_UNSUPPORTED_MESSAGE_LENGTH');
       assert.strictEqual(err.message, 'Max payload size exceeded');
       assert.strictEqual(err[kStatusCode], 1009);
       done();
@@ -913,6 +934,7 @@ describe('Receiver', () => {
 
     receiver.on('error', (err) => {
       assert.ok(err instanceof RangeError);
+      assert.strictEqual(err.code, 'WS_ERR_UNSUPPORTED_MESSAGE_LENGTH');
       assert.strictEqual(err.message, 'Max payload size exceeded');
       assert.strictEqual(err[kStatusCode], 1009);
       done();
@@ -931,6 +953,105 @@ describe('Receiver', () => {
         receiver.write(fragment2);
       });
     });
+  });
+
+  it('emits an error if there are too many message fragments (1/3)', (done) => {
+    const receiver = new Receiver(undefined, {}, false, 0, 0, 2);
+
+    receiver.on('error', (err) => {
+      assert.ok(err instanceof RangeError);
+      assert.strictEqual(err.code, 'WS_ERR_TOO_MANY_BUFFERED_PARTS');
+      assert.strictEqual(err.message, 'Too many message fragments');
+      assert.strictEqual(err[kStatusCode], 1008);
+      done();
+    });
+
+    receiver.write(
+      Buffer.from([
+        0x02,
+        0x01,
+        0x61, // First non-final binary fragment.
+        0x00,
+        0x01,
+        0x62, // Continuation fragment.
+        0x00,
+        0x01,
+        0x63 // Continuation fragment that exceeds the limit.
+      ])
+    );
+  });
+
+  it('emits an error if there are too many message fragments (2/3)', (done) => {
+    const receiver = new Receiver(undefined, {}, false, 0, 0, 2);
+
+    receiver.on('error', (err) => {
+      assert.ok(err instanceof RangeError);
+      assert.strictEqual(err.code, 'WS_ERR_TOO_MANY_BUFFERED_PARTS');
+      assert.strictEqual(err.message, 'Too many message fragments');
+      assert.strictEqual(err[kStatusCode], 1008);
+      done();
+    });
+
+    receiver.write(Buffer.from([0x02, 0x00]));
+    receiver.write(Buffer.from([0x00, 0x00]));
+    receiver.write(Buffer.from([0x00, 0x00]));
+  });
+
+  it('emits an error if there are too many message fragments (3/3)', (done) => {
+    const perMessageDeflate = new PerMessageDeflate();
+    perMessageDeflate.accept([{}]);
+
+    const receiver = new Receiver(
+      undefined,
+      {
+        'permessage-deflate': perMessageDeflate
+      },
+      false,
+      0,
+      0,
+      1
+    );
+    const fragment1 = Buffer.from('foo');
+    const fragment2 = Buffer.from('bar');
+
+    receiver.on('error', (err) => {
+      assert.ok(err instanceof RangeError);
+      assert.strictEqual(err.code, 'WS_ERR_TOO_MANY_BUFFERED_PARTS');
+      assert.strictEqual(err.message, 'Too many message fragments');
+      assert.strictEqual(err[kStatusCode], 1008);
+      done();
+    });
+
+    perMessageDeflate.compress(fragment1, false, (err, data) => {
+      if (err) return done(err);
+
+      receiver.write(Buffer.from([0x41, data.length]));
+      receiver.write(data);
+
+      perMessageDeflate.compress(fragment2, true, (err, data) => {
+        if (err) return done(err);
+
+        receiver.write(Buffer.from([0x80, data.length]));
+        receiver.write(data);
+      });
+    });
+  });
+
+  it('emits an error if there are too many buffered chunks', (done) => {
+    const receiver = new Receiver(undefined, {}, false, 0, 2);
+
+    receiver.on('error', (err) => {
+      assert.ok(err instanceof RangeError);
+      assert.strictEqual(err.code, 'WS_ERR_TOO_MANY_BUFFERED_PARTS');
+      assert.strictEqual(err.message, 'Too many buffered chunks');
+      assert.strictEqual(err[kStatusCode], 1008);
+      done();
+    });
+
+    receiver.write(Buffer.from([0x82, 0x05]));
+    receiver.write(Buffer.from([0x61]));
+    receiver.write(Buffer.from([0x62]));
+    receiver.write(Buffer.from([0x63]));
   });
 
   it("honors the 'nodebuffer' binary type", (done) => {

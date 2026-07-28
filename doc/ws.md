@@ -44,6 +44,19 @@
   - [websocket.terminate()](#websocketterminate)
   - [websocket.url](#websocketurl)
 - [WebSocket.createWebSocketStream(websocket[, options])](#websocketcreatewebsocketstreamwebsocket-options)
+- [WS Error Codes](#ws-error-codes)
+  - [WS_ERR_EXPECTED_FIN](#ws_err_expected_fin)
+  - [WS_ERR_EXPECTED_MASK](#ws_err_expected_mask)
+  - [WS_ERR_INVALID_CLOSE_CODE](#ws_err_invalid_close_code)
+  - [WS_ERR_INVALID_CONTROL_PAYLOAD_LENGTH](#ws_err_invalid_control_payload_length)
+  - [WS_ERR_INVALID_OPCODE](#ws_err_invalid_opcode)
+  - [WS_ERR_INVALID_UTF8](#ws_err_invalid_utf8)
+  - [WS_ERR_UNEXPECTED_MASK](#ws_err_unexpected_mask)
+  - [WS_ERR_UNEXPECTED_RSV_1](#ws_err_unexpected_rsv_1)
+  - [WS_ERR_UNEXPECTED_RSV_2_3](#ws_err_unexpected_rsv_2_3)
+  - [WS_ERR_TOO_MANY_BUFFERED_PARTS](#ws_err_too_many_buffered_parts)
+  - [WS_ERR_UNSUPPORTED_DATA_PAYLOAD_LENGTH](#ws_err_unsupported_data_payload_length)
+  - [WS_ERR_UNSUPPORTED_MESSAGE_LENGTH](#ws_err_unsupported_message_length)
 
 ## Class: WebSocket.Server
 
@@ -65,11 +78,15 @@ This class represents a WebSocket server. It extends the `EventEmitter`.
   - `noServer` {Boolean} Enable no server mode.
   - `clientTracking` {Boolean} Specifies whether or not to track clients.
   - `perMessageDeflate` {Boolean|Object} Enable/disable permessage-deflate.
+  - `maxBufferedChunks` {Number} The maximum number of buffered data chunks.
+    Defaults to 262144. Set to 0 to disable the limit.
+  - `maxFragments` {Number} The maximum number of fragments in a message.
+    Defaults to 16384. Set to 0 to disable the limit.
   - `maxPayload` {Number} The maximum allowed message size in bytes.
 - `callback` {Function}
 
-Create a new server instance. One of `port`, `server` or `noServer` must be
-provided or an error is thrown. An HTTP server is automatically created,
+Create a new server instance. One and only one of `port`, `server` or `noServer`
+must be provided or an error is thrown. An HTTP server is automatically created,
 started, and used if `port` is set. To use an external HTTP/S server instead,
 specify only `server` or `noServer`. In this case the HTTP/S server must be
 started manually. The "noServer" mode allows the WebSocket server to be
@@ -255,6 +272,10 @@ This class represents a WebSocket. It extends the `EventEmitter`.
   - `protocolVersion` {Number} Value of the `Sec-WebSocket-Version` header.
   - `origin` {String} Value of the `Origin` or `Sec-WebSocket-Origin` header
     depending on the `protocolVersion`.
+  - `maxBufferedChunks` {Number} The maximum number of buffered data chunks.
+    Defaults to 262144. Set to 0 to disable the limit.
+  - `maxFragments` {Number} The maximum number of fragments in a message.
+    Defaults to 16384. Set to 0 to disable the limit.
   - `maxPayload` {Number} The maximum allowed message size in bytes.
   - Any other option allowed in [http.request()][] or [https.request()][].
     Options given do not have any effect if parsed from the URL given with the
@@ -298,7 +319,8 @@ human-readable string explaining why the connection has been closed.
 
 - `error` {Error}
 
-Emitted when an error occurs.
+Emitted when an error occurs. Errors may have a `.code` property, matching one
+of the string values defined below under [WS Error Codes](#ws-error-codes).
 
 ### Event: 'message'
 
@@ -492,6 +514,62 @@ The URL of the WebSocket server. Server clients don't have this attribute.
 
 Returns a `Duplex` stream that allows to use the Node.js streams API on top of a
 given `WebSocket`.
+
+## WS Error Codes
+
+Errors emitted by the websocket may have a `.code` property, describing the
+specific type of error that has occurred:
+
+### WS_ERR_EXPECTED_FIN
+
+A WebSocket frame was received with the FIN bit not set when it was expected.
+
+### WS_ERR_EXPECTED_MASK
+
+An unmasked WebSocket frame was received by a WebSocket server.
+
+### WS_ERR_INVALID_CLOSE_CODE
+
+A WebSocket close frame was received with an invalid close code.
+
+### WS_ERR_INVALID_CONTROL_PAYLOAD_LENGTH
+
+A control frame with an invalid payload length was received.
+
+### WS_ERR_INVALID_OPCODE
+
+A WebSocket frame was received with an invalid opcode.
+
+### WS_ERR_INVALID_UTF8
+
+A text or close frame was received containing invalid UTF-8 data.
+
+### WS_ERR_UNEXPECTED_MASK
+
+A masked WebSocket frame was received by a WebSocket client.
+
+### WS_ERR_UNEXPECTED_RSV_1
+
+A WebSocket frame was received with the RSV1 bit set unexpectedly.
+
+### WS_ERR_UNEXPECTED_RSV_2_3
+
+A WebSocket frame was received with the RSV2 or RSV3 bit set unexpectedly.
+
+### WS_ERR_TOO_MANY_BUFFERED_PARTS
+
+The configured maximum number of buffered data chunks or message fragments was
+exceeded.
+
+### WS_ERR_UNSUPPORTED_DATA_PAYLOAD_LENGTH
+
+A data frame was received with a length longer than the max supported length
+(2^53 - 1, due to JavaScript language limitations).
+
+### WS_ERR_UNSUPPORTED_MESSAGE_LENGTH
+
+A message was received with a length longer than the maximum supported length,
+as configured by the `maxPayload` option.
 
 [concurrency-limit]: https://github.com/websockets/ws/issues/1202
 [duplex-options]:

@@ -18,12 +18,44 @@ const { NOOP } = require('../lib/constants');
 describe('WebSocketServer', () => {
   describe('#ctor', () => {
     it('throws an error if no option object is passed', () => {
-      assert.throws(() => new WebSocket.Server());
+      assert.throws(
+        () => new WebSocket.Server(),
+        new RegExp(
+          '^TypeError: One and only one of the "port", "server", or ' +
+            '"noServer" options must be specified$'
+        )
+      );
     });
 
     describe('options', () => {
-      it('throws an error if no `port` or `server` option is specified', () => {
-        assert.throws(() => new WebSocket.Server({}));
+      it('throws an error if required options are not specified', () => {
+        assert.throws(
+          () => new WebSocket.Server({}),
+          new RegExp(
+            '^TypeError: One and only one of the "port", "server", or ' +
+              '"noServer" options must be specified$'
+          )
+        );
+      });
+
+      it('throws an error if mutually exclusive options are specified', () => {
+        const server = http.createServer();
+        const variants = [
+          { port: 0, noServer: true, server },
+          { port: 0, noServer: true },
+          { port: 0, server },
+          { noServer: true, server }
+        ];
+
+        for (const options of variants) {
+          assert.throws(
+            () => new WebSocket.Server(options),
+            new RegExp(
+              '^TypeError: One and only one of the "port", "server", or ' +
+                '"noServer" options must be specified$'
+            )
+          );
+        }
       });
 
       it('exposes options passed to constructor', (done) => {
@@ -33,11 +65,15 @@ describe('WebSocketServer', () => {
         });
       });
 
-      it('accepts the `maxPayload` option', (done) => {
+      it('accepts the receiver limit options', (done) => {
+        const maxBufferedChunks = 1024;
+        const maxFragments = 512;
         const maxPayload = 20480;
         const wss = new WebSocket.Server(
           {
             perMessageDeflate: true,
+            maxBufferedChunks,
+            maxFragments,
             maxPayload,
             port: 0
           },
@@ -47,6 +83,11 @@ describe('WebSocketServer', () => {
         );
 
         wss.on('connection', (ws) => {
+          assert.strictEqual(
+            ws._receiver._maxBufferedChunks,
+            maxBufferedChunks
+          );
+          assert.strictEqual(ws._receiver._maxFragments, maxFragments);
           assert.strictEqual(ws._receiver._maxPayload, maxPayload);
           assert.strictEqual(
             ws._receiver._extensions['permessage-deflate']._maxPayload,
@@ -246,11 +287,45 @@ describe('WebSocketServer', () => {
       });
     });
 
-    it("emits the 'close' event", (done) => {
-      const wss = new WebSocket.Server({ noServer: true });
+    it("emits the 'close' event after the server closes", (done) => {
+      let serverCloseEventEmitted = false;
 
-      wss.on('close', done);
-      wss.close();
+      const wss = new WebSocket.Server({ port: 0 }, () => {
+        net.createConnection({ port: wss.address().port });
+      });
+
+      wss._server.on('connection', (socket) => {
+        wss.close();
+
+        //
+        // The server is closing. Ensure this does not emit a `'close'`
+        // event before the server is actually closed.
+        //
+        wss.close();
+
+        process.nextTick(() => {
+          socket.end();
+        });
+      });
+
+      wss._server.on('close', () => {
+        serverCloseEventEmitted = true;
+      });
+
+      wss.on('close', () => {
+        assert.ok(serverCloseEventEmitted);
+        done();
+      });
+    });
+
+    it("emits the 'close' event if the server is already closed", (done) => {
+      const wss = new WebSocket.Server({ port: 0 }, () => {
+        wss.close(() => {
+          assert.strictEqual(wss._state, 2);
+          wss.on('close', done);
+          wss.close();
+        });
+      });
     });
   });
 
@@ -428,6 +503,47 @@ describe('WebSocketServer', () => {
   });
 
   describe('Connection establishing', () => {
+    it('fails if the Upgrade header field value cannot be read', (done) => {
+      const server = http.createServer();
+      const wss = new WebSocket.Server({ noServer: true });
+
+      server.maxHeadersCount = 1;
+
+      server.on('upgrade', (req, socket, head) => {
+        assert.deepStrictEqual(req.headers, { foo: 'bar' });
+        wss.handleUpgrade(req, socket, head, () => {
+          done(new Error('Unexpected callback invocation'));
+        });
+      });
+
+      server.listen(() => {
+        const req = http.get({
+          port: server.address().port,
+          headers: {
+            foo: 'bar',
+            bar: 'baz',
+            Connection: 'Upgrade',
+            Upgrade: 'websocket'
+          }
+        });
+
+        req.on('response', (res) => {
+          assert.strictEqual(res.statusCode, 400);
+
+          const chunks = [];
+
+          res.on('data', (chunk) => {
+            chunks.push(chunk);
+          });
+
+          res.on('end', () => {
+            assert.strictEqual(Buffer.concat(chunks).toString(), 'Bad Request');
+            server.close(done);
+          });
+        });
+      });
+    });
+
     it('fails if the Sec-WebSocket-Key header is invalid (1/2)', (done) => {
       const wss = new WebSocket.Server({ port: 0 }, () => {
         const req = http.get({
@@ -471,7 +587,7 @@ describe('WebSocketServer', () => {
       });
     });
 
-    it('fails is the Sec-WebSocket-Version header is invalid (1/2)', (done) => {
+    it('fails if the Sec-WebSocket-Version header is invalid (1/2)', (done) => {
       const wss = new WebSocket.Server({ port: 0 }, () => {
         const req = http.get({
           port: wss.address().port,
@@ -493,7 +609,7 @@ describe('WebSocketServer', () => {
       });
     });
 
-    it('fails is the Sec-WebSocket-Version header is invalid (2/2)', (done) => {
+    it('fails if the Sec-WebSocket-Version header is invalid (2/2)', (done) => {
       const wss = new WebSocket.Server({ port: 0 }, () => {
         const req = http.get({
           port: wss.address().port,
@@ -516,7 +632,7 @@ describe('WebSocketServer', () => {
       });
     });
 
-    it('fails is the Sec-WebSocket-Extensions header is invalid', (done) => {
+    it('fails if the Sec-WebSocket-Extensions header is invalid', (done) => {
       const wss = new WebSocket.Server(
         {
           perMessageDeflate: true,
@@ -544,6 +660,28 @@ describe('WebSocketServer', () => {
 
       wss.on('connection', () => {
         done(new Error("Unexpected 'connection' event"));
+      });
+    });
+
+    it('fails if the WebSocket server is closing or closed', (done) => {
+      const server = http.createServer();
+      const wss = new WebSocket.Server({ noServer: true });
+
+      server.on('upgrade', (req, socket, head) => {
+        wss.close();
+        wss.handleUpgrade(req, socket, head, () => {
+          done(new Error('Unexpected callback invocation'));
+        });
+      });
+
+      server.listen(0, () => {
+        const ws = new WebSocket(`ws://localhost:${server.address().port}`);
+
+        ws.on('unexpected-response', (req, res) => {
+          assert.strictEqual(res.statusCode, 503);
+          res.resume();
+          server.close(done);
+        });
       });
     });
 

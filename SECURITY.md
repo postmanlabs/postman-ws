@@ -25,8 +25,9 @@ following methods:
 
 Once we have acknowledged receipt of your report and confirmed the bug ourselves
 we will work with you to fix the vulnerability and publicly acknowledge your
-responsible disclosure, if you wish. In addition to that we will report all
-vulnerabilities to the [Node Security Project](https://nodesecurity.io/).
+responsible disclosure, if you wish. In addition to that we will create and
+publish a security advisory to
+[GitHub Security Advisories](https://github.com/websockets/ws/security/advisories?state=published).
 
 ## History
 
@@ -34,3 +35,5 @@ vulnerabilities to the [Node Security Project](https://nodesecurity.io/).
   [Buffer vulnerability](https://github.com/websockets/ws/releases/tag/1.0.1)
 - 08 Nov 2017:
   [DoS vulnerability](https://github.com/websockets/ws/releases/tag/3.3.1)
+- 25 May 2021:
+  [ReDoS in `Sec-Websocket-Protocol` header](https://github.com/websockets/ws/releases/tag/7.4.6)
